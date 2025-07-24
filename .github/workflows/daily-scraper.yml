@@ -1,0 +1,27 @@
+name: Daily TikTok Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Chạy mỗi ngày lúc 00:00 UTC (tức là 7h sáng Việt Nam)
+  workflow_dispatch:     # Cho phép bạn nhấn chạy thủ công
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install TikTok Scraper
+        run: npm install -g tiktok-scraper
+      - name: Scrape TikTok
+        run: |
+          mkdir -p data
+          tiktok-scraper search --keyword "sữa chua" --type video --number 50 --filepath ./data/videos.csv
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: tiktok-videos-daily
+          path: ./data/videos.csv
